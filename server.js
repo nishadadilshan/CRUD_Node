@@ -14,7 +14,8 @@ app.get("/blog", (req, res) => {
   res.send("Hello Blog");
 });
 
-app.get("/getProduct", async (req, res) => {
+//get all the products
+app.get("/getProducts", async (req, res) => {
   try {
     const products = await Product.find({});
     res.status(200).json(products);
@@ -23,6 +24,7 @@ app.get("/getProduct", async (req, res) => {
   }
 });
 
+//get product by product id
 app.get("/getProductByID/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -33,6 +35,7 @@ app.get("/getProductByID/:id", async (req, res) => {
   }
 });
 
+//add product
 app.post("/addProduct", async (req, res) => {
   try {
     const product = await Product.create(req.body);
@@ -43,6 +46,25 @@ app.post("/addProduct", async (req, res) => {
   }
 });
 
+app.put("/updateProduct/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateProduct = await Product.findByIdAndUpdate(id, req.body);
+
+    //cannot find product in database
+    if (!updateProduct) {
+      return res
+        .status(404)
+        .json({ message: `Cannot find any product with this id ${id}` });
+    }
+    const newProduct = await Product.findById(id);
+    res.status(200).json(newProduct);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//create database connection
 mongoose
   .connect(
     "mongodb+srv://nishadadilshan:Dilshan123@cluster0.wqt3hza.mongodb.net/Node-API?retryWrites=true&w=majority"
